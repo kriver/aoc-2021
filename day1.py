@@ -3,7 +3,7 @@
 from util import *
 
 
-def count_increases(data: List[int], window : int) -> int:
+def count_increases(data: List[int], window: int) -> int:
     cnt = 0
     prev = sum(data[0:window])
     for i in range(window, len(data)):
@@ -14,7 +14,7 @@ def count_increases(data: List[int], window : int) -> int:
 
 
 if __name__ == "__main__":
-    measures = as_int(load('day1.txt'))
+    measures = load('day1.txt', mapper=int)
 
     increases = count_increases(measures, 1)
     assert increases == 1722

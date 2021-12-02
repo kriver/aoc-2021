@@ -1,11 +1,11 @@
-from typing import List
+from typing import List, TypeVar, Callable
+
+T = TypeVar('T')
+
+Mapper = Callable[[str], T]
 
 
-def load(filename) -> List[str]:
+def load(filename, mapper: Mapper = lambda x: x) -> List[T]:
     with open('data/' + filename, 'r') as f:
         lines = f.read().splitlines()
-    return lines
-
-
-def as_int(l: List[str]) -> List[int]:
-    return list(map(lambda x: int(x), l))
+    return list(map(mapper, lines))
