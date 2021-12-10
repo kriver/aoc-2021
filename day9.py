@@ -5,7 +5,6 @@ import numpy as np
 
 from util import *
 
-# HeightMap = List[List[int]]
 Coord = Tuple[int, int]
 
 
