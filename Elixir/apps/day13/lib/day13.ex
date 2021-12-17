@@ -40,6 +40,31 @@ defmodule Day13 do
     )
   end
 
+  def visualise(dots) do
+    max_x = dots
+            |> Enum.map(fn {x, _y} -> x end)
+            |> Enum.max()
+    max_y = dots
+            |> Enum.map(fn {_x, y} -> y end)
+            |> Enum.max()
+    Enum.reduce(
+      0..max_y,
+      [],
+      fn y, acc ->
+        [
+          Enum.reduce(
+            0..max_x,
+            [],
+            fn x, acc2 ->
+              [(if MapSet.member?(dots, {max_x - x, max_y - y}), do: "#", else: ".") | acc2]
+            end
+          ) | acc
+        ]
+      end
+    )
+    |> Enum.map(fn l -> Enum.join(l) end)
+  end
+
   def fold_first() do
     {dots, instructions} = input()
     instructions
@@ -53,5 +78,12 @@ defmodule Day13 do
     instructions
     |> Enum.reduce(dots, fn instr, acc -> fold(acc, instr) end)
     |> Enum.count()
+  end
+
+  def visualise() do
+    {dots, instructions} = input()
+    instructions
+    |> Enum.reduce(dots, fn instr, acc -> fold(acc, instr) end)
+    |> visualise()
   end
 end
