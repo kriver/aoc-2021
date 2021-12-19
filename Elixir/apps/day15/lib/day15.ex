@@ -4,6 +4,8 @@ defmodule Day15 do
   """
 
   @delta [{-1, 0}, {1, 0}, {0, -1}, {0, 1}]
+  @dim 100
+  @multiply 5
 
   def input() do
     File.read!("data/day15.txt")
@@ -60,6 +62,30 @@ defmodule Day15 do
 
   def find_path() do
     input()
-    |> find_path({0, 0}, {99, 99})
+    |> find_path({0, 0}, {@dim - 1, @dim - 1})
+  end
+
+  def  find_path_big() do
+    input()
+    |> Map.to_list()
+    |> Enum.reduce(
+         %{},
+         fn {{x, y}, r}, acc ->
+           Enum.to_list(0..@multiply - 1)
+           |> Enum.reduce(
+                acc,
+                fn my, acc ->
+                  Enum.to_list(0..@multiply - 1)
+                  |> Enum.reduce(
+                       acc,
+                       fn mx, acc ->
+                         Map.put(acc, {mx * @dim + x, my * @dim + y}, rem(r - 1 + mx + my, 9) + 1)
+                       end
+                     )
+                end
+              )
+         end
+       )
+    |> find_path({0, 0}, {@multiply * @dim - 1, @multiply * @dim - 1})
   end
 end
