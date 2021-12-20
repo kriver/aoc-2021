@@ -89,4 +89,4 @@ if __name__ == "__main__":
 
     all_v = find_all()
     print('Number of velocities: %d' % len(all_v))
-    assert peak == 14535
+    assert len(all_v) == 2270
