@@ -76,4 +76,4 @@ if __name__ == "__main__":
     result = evolve(grid, algorithm, 50)
     num_lit = lit_pixels(result)
     print(f'Lit pixels after 50 enhancements = {num_lit}')
-    assert num_lit == 5464
+    assert num_lit == 19228
