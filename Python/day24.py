@@ -64,7 +64,7 @@ def solve(data, inp, start):
     for i in range(start, 14):
         minimum = sys.maxsize
         minimum_x = -1
-        for x in range(9, 0, -1):
+        for x in range(1, 10):
             inp[i] = x
             s = run_python(inp)
             # sp = run_program(data, inp)
@@ -77,44 +77,35 @@ def solve(data, inp, start):
     return inp, minimum
 
 
-def main():
+def run(ranger_supplier):
     data = load('day24.txt')
-    model_number = ''
 
     # 11499629198471 if keeping minimum per iteration
     # 91499629198479 but also this
-    nines = [int(c) for c in '99999999999999']
-    inp = list(nines)
+    ones = [int(c) for c in '11111111111111']
+    inp = list(ones)
     sol, minimum = solve(data, inp, 0)
     for i in range(14):
-        # try increasing this digit
-        for d in range(sol[i] + 1, 10):
-            inp = sol[0:i + 1] + nines[i + 1:]
+        # try increasing/decreasing this digit
+        for d in ranger_supplier(sol[i]):
+            inp = sol[0:i + 1] + ones[i + 1:]
             inp[i] = d
             inp, maybe_min = solve(data, inp, i + 1)
             if maybe_min <= minimum:
                 sol[i] = d
                 minimum = maybe_min
-        model_number = ''.join([str(i) for i in sol])
+        # model_number = ''.join([str(i) for i in sol])
         # print(f'Model number = {model_number} with {run_python(sol)}')
-    print(f'Model number = {model_number} with {run_python(sol)}')
-    assert model_number == '93499629698999'
-
-
-def brute_force(lines: List[str]):
-    for n in range(99999999999999, 11111111111111, -1):
-        s = str(n)
-        if s.find('0') != -1:
-            continue
-        inp = [int(c) for c in s]
-        # outp = run_program(lines, inp)
-        outp = run_python(inp)
-        print(f'{n} -> {outp}')
-        if outp == 0:
-            break
-    print(f'Found {n}')
+    return sol
 
 
 if __name__ == "__main__":
-    # brute_force(None)
-    main()
+    solution = run(lambda d: range(d + 1, 10))
+    model_number = ''.join([str(i) for i in solution])
+    print(f'Largest model number = {model_number} with {run_python(solution)}')
+    assert model_number == '93499629698999'
+
+    solution = run(lambda d: range(d - 1, 0, -1))
+    model_number = ''.join([str(i) for i in solution])
+    print(f'Smallest model number = {model_number} with {run_python(solution)}')
+    assert model_number == '11164118121471'
