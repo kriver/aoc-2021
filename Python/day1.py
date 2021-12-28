@@ -18,8 +18,8 @@ if __name__ == "__main__":
 
     increases = count_increases(measures, 1)
     assert increases == 1722
-    print("Part 1: 0-window increases = %d" % increases)
+    print("Part 1: 1-window increases = %d" % increases)
 
     increases = count_increases(measures, 3)
     assert increases == 1748
-    print("Part 1: 3-window increases = %d" % increases)
+    print("Part 2: 3-window increases = %d" % increases)
