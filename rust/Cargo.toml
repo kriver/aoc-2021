@@ -7,3 +7,4 @@ edition = "2021"
 [dependencies]
 
 queues = "1.1.0"
+retain_mut = "0.1.5"
