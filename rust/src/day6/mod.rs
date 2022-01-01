@@ -1,22 +1,16 @@
 use std::collections::HashMap;
 
-use itertools::Itertools;
-
-use crate::util::load;
+use crate::util::{Frequencies, load};
 
 type Freq = HashMap<u32, u64>;
 
+
 fn input() -> Freq {
     let lines: Vec<String> = load("data/day6.txt");
-    let mut freqs: Freq = HashMap::new();
-    let counts = lines[0]
+    lines[0]
         .split(",")
         .map(|s| s.parse::<u32>().unwrap())
-        .counts();
-    for (k, v) in counts.iter() {
-        freqs.insert(*k, *v as u64);
-    }
-    freqs
+        .frequencies::<u64>()
 }
 
 fn evolve_once(fish: Freq) -> Freq {
