@@ -1,11 +1,10 @@
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::{BufReader, BufRead};
-use std::str::FromStr;
 use std::fmt::Debug;
+use std::fs::File;
 use std::hash::Hash;
+use std::io::{BufRead, BufReader};
 use std::ops::AddAssign;
-
+use std::str::FromStr;
 
 pub fn load<T>(filename: &str) -> Vec<T>
     where T: FromStr, <T as FromStr>::Err: Debug
@@ -15,6 +14,14 @@ pub fn load<T>(filename: &str) -> Vec<T>
     reader.lines()
         .map(|l| l.unwrap().parse().unwrap())
         .collect()
+}
+
+pub fn abs_diff(a: u32, b: u32) -> u32 {
+    if a > b {
+        a - b
+    } else {
+        b - a
+    }
 }
 
 // Copy of Itertools.counts but with a generic count type
