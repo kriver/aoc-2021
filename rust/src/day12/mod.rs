@@ -1,10 +1,16 @@
 use std::collections::{HashMap, VecDeque};
 
+use crate::day12::RecursionType::{OneTwice, OnlyOnce};
 use crate::util::load;
 
 #[derive(Eq, PartialEq, Hash)]
 struct Cave {
     id: String,
+}
+
+enum RecursionType {
+    OnlyOnce,
+    OneTwice,
 }
 
 impl Cave {
@@ -53,26 +59,39 @@ impl Caves {
         }
     }
 
-    fn walk<'a>(&'a self, cave: &Cave, path: &mut VecDeque<&'a Cave>, count: &mut usize) {
-        fn visit_allowed(c: &Cave, path: &VecDeque<&Cave>) -> bool {
-            !c.is_small() || !path.contains(&c)
+    fn is_allowed(&self, recursion_type: &RecursionType, cave: &Cave, path: &mut VecDeque<&Cave>)
+                  -> (RecursionType, bool) {
+        match recursion_type {
+            OnlyOnce => (OnlyOnce, !cave.is_small() || !path.contains(&cave)),
+            OneTwice => (
+                if cave.is_small() && path.contains(&cave) { OnlyOnce } else { OneTwice },
+                true
+            )
         }
+    }
+
+    fn walk<'a>(&'a self, cave: &'a Cave, path: &mut VecDeque<&'a Cave>, count: &mut usize,
+                recursion_type: &RecursionType) {
         for c in self.caves[cave].iter() {
             match c.is_end() {
                 true => *count += 1,
-                false => if visit_allowed(c, path) {
-                    path.push_front(c);
-                    self.walk(c, path, count);
-                    path.pop_front();
+                false => {
+                    let (new_rt, allowed) = self.is_allowed(recursion_type, c, path);
+                    if allowed {
+                        path.push_front(c);
+                        self.walk(c, path, count, &new_rt);
+                        path.pop_front();
+                    }
                 }
             }
         }
     }
 
-    fn count_paths(&self) -> usize {
+    fn count_paths(&self, recursion_type: &RecursionType) -> usize
+    {
         let mut paths = 0;
         let start = self.caves.keys().filter(|c| c.is_start()).nth(0).unwrap();
-        self.walk(start, &mut VecDeque::new(), &mut paths);
+        self.walk(start, &mut VecDeque::new(), &mut paths, recursion_type);
         paths
     }
 }
@@ -93,11 +112,11 @@ fn input() -> Caves {
 }
 
 fn part1(caves: &Caves) -> usize {
-    caves.count_paths()
+    caves.count_paths(&OnlyOnce)
 }
 
 fn part2(caves: &Caves) -> usize {
-    caves.count_paths()
+    caves.count_paths(&OneTwice)
 }
 
 #[cfg(test)]
