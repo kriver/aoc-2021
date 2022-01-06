@@ -4,10 +4,9 @@ use std::collections::{BTreeSet, HashSet};
 use crate::util::load;
 
 type Grid = Vec<Vec<u32>>;
-type Coord = (i32, i32);
 
-const DIM: i32 = 100;
-const NEIGHBOURS: [Coord; 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
+static DIM: u32 = 100;
+const NEIGHBOURS: [(i32, i32); 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
 
 fn input() -> Grid {
     let lines: Vec<String> = load("data/day15.txt");
@@ -18,17 +17,65 @@ fn input() -> Grid {
         .collect()
 }
 
+#[derive(Eq, PartialEq, Hash, Debug, Copy, Clone)]
+struct Coord {
+    x: u32,
+    y: u32,
+    // meta dimension
+    mdim: u32,
+    // meta coords
+    mx: u32,
+    my: u32,
+}
+
+impl Coord {
+    fn dist(&self) -> u32 {
+        (self.mx * self.mdim + self.x) + (self.my * self.mdim + self.y)
+    }
+
+    fn meta_dist(&self) -> u32 {
+        self.mx + self.my
+    }
+
+    fn with_delta(&self, dx: i32, dy: i32) -> Option<Coord> {
+        let (x, y) = (
+            (self.mx * DIM + self.x) as i32 + dx,
+            (self.my * DIM + self.y) as i32 + dy
+        );
+        if x < 0 || x as u32 >= DIM * self.mdim || y < 0 || y as u32 >= DIM * self.mdim {
+            None
+        } else {
+            Some(Coord {
+                x: x as u32 % DIM,
+                y: y as u32 % DIM,
+                mdim: self.mdim,
+                mx: x as u32 / DIM,
+                my: y as u32 / DIM,
+            })
+        }
+    }
+}
+
+impl PartialOrd<Self> for Coord {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Coord {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match self.dist().cmp(&other.dist()) {
+            Ordering::Equal => Ordering::Less, // don't care
+            Ordering::Less => Ordering::Greater,
+            Ordering::Greater => Ordering::Less, // ensure bigger is better
+        }
+    }
+}
+
 #[derive(Eq, Debug)]
 struct Location {
     risk: u32,
     pos: Coord,
-}
-
-impl Location {
-    fn dist(&self) -> i32 {
-        let (x, y) = self.pos;
-        x + y
-    }
 }
 
 impl PartialEq<Self> for Location {
@@ -46,14 +93,15 @@ impl PartialOrd<Self> for Location {
 impl Ord for Location {
     fn cmp(&self, other: &Self) -> Ordering {
         match self.risk.cmp(&other.risk) {
-            Ordering::Equal => match self.dist().cmp(&other.dist()) {
-                Ordering::Equal => Ordering::Less, // don't care
-                Ordering::Less => Ordering::Greater,
-                Ordering::Greater => Ordering::Less, // ensure bigger is better
-            },
+            Ordering::Equal => self.pos.cmp(&other.pos),
             other => other,
         }
     }
+}
+
+fn grid_risk(grid: &Grid, pos: &Coord) -> u32 {
+    let base_risk = grid[pos.y as usize][pos.x as usize];
+    (base_risk + pos.meta_dist() - 1) % 9 + 1
 }
 
 fn find_path_r(mut queue: BTreeSet<Location>, mut visited: HashSet<Coord>,
@@ -63,15 +111,14 @@ fn find_path_r(mut queue: BTreeSet<Location>, mut visited: HashSet<Coord>,
             Location { risk, pos } if dest == pos => return risk,
             Location { risk, pos } => {
                 for (dx, dy) in NEIGHBOURS.iter() {
-                    let (x, y) = pos;
-                    let new_pos = (x + *dx, y + *dy);
-                    let (nx, ny) = new_pos;
-                    if nx < 0 || nx >= DIM || ny < 0 || ny >= DIM || visited.contains(&new_pos) {
-                        continue;
+                    match pos.with_delta(*dx, *dy) {
+                        None => (), // off grid
+                        Some(new_pos) => if !visited.contains(&new_pos) {
+                            let new_risk = risk + grid_risk(&grid, &new_pos);
+                            visited.insert(new_pos);
+                            queue.insert(Location { risk: new_risk, pos: new_pos });
+                        }
                     }
-                    let new_risk = risk + grid[ny as usize][nx as usize];
-                    queue.insert(Location { risk: new_risk, pos: new_pos });
-                    visited.insert(new_pos);
                 }
             }
         }
@@ -79,19 +126,22 @@ fn find_path_r(mut queue: BTreeSet<Location>, mut visited: HashSet<Coord>,
     unreachable!("no path found?")
 }
 
-fn find_path(grid: Grid, start: Coord, dest: Coord) -> u32 {
+fn find_path(grid: Grid, dest: Coord) -> u32 {
+    let start = Coord { x: 0, y: 0, mdim: dest.mdim, mx: 0, my: 0 };
     let visited = HashSet::from([start]);
     let queue = BTreeSet::from([Location { risk: 0, pos: start }]);
     find_path_r(queue, visited, grid, dest)
 }
 
 fn part1(grid: Grid) -> u32 {
-    find_path(grid, (0, 0), (DIM - 1, DIM - 1))
+    let dest = Coord { x: DIM - 1, y: DIM - 1, mdim: 1, mx: 0, my: 0 };
+    find_path(grid, dest)
 }
 
 
 fn part2(grid: Grid) -> u32 {
-    0
+    let dest = Coord { x: DIM - 1, y: DIM - 1, mdim: 5, mx: 4, my: 4 };
+    find_path(grid, dest)
 }
 
 #[cfg(test)]
