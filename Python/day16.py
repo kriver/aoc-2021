@@ -102,6 +102,6 @@ if __name__ == "__main__":
     print('Version sum: %d' % version_sum)
     assert version_sum == 879
 
-    result = calculate(([message]))
+    result = calculate([message])
     print(f'Result: {result}')
     assert result[0] == 539051801941
