@@ -84,7 +84,7 @@ defmodule Day18Test do
     assert Day18.homework() == 2907
   end
 
-  tes "Backside" do
+  test "Backside" do
     assert Day18.backside() == 4690
   end
 end
