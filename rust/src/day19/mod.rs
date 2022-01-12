@@ -187,7 +187,7 @@ fn solve(scanners: &mut Vec<Scanner>) -> BeaconMap {
         let current = solved.remove(0);
         unsolved = unsolved.into_iter().fold(
             vec![],
-            |mut unsolved, mut u| {
+            |mut unsolved, u| {
                 if current.overlaps(u) {
                     combined.add(u);
                     solved.push(u);
