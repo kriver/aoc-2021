@@ -146,6 +146,6 @@ if __name__ == "__main__":
     assert unique == 403
 
     offsets = [s.offset() for s in scanner_data]
-    manhattan = max([manhattan_distance(p1, p2) for p1, p2 in itertools.permutations(offsets, 2)])
+    manhattan = max([manhattan_distance(p1, p2) for p1, p2 in itertools.combinations(offsets, 2)])
     print(f'Largest Manhattan distance = {manhattan}')
     assert manhattan == 10569

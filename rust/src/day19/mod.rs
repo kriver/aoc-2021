@@ -59,13 +59,6 @@ impl Beacon {
         [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
     }
 
-    fn manhattan_distance_to(&self, other: &Beacon) -> u32 {
-        self.distance_to(other)
-            .into_iter()
-            .map(|v| v.abs())
-            .sum::<i32>() as u32
-    }
-
     fn with_offset(&self, offset: &Vector3D) -> Beacon {
         let loc = self.0;
         Beacon([loc[0] + offset[0], loc[1] + offset[1], loc[2] + offset[2]])
@@ -184,19 +177,19 @@ fn input() -> Vec<Scanner> {
     scanners
 }
 
-fn solve(mut unsolved: Vec<Scanner>) -> BeaconMap {
-    unsolved.iter_mut().for_each(|s| s.prepare_rotations());
+fn solve(scanners: &mut Vec<Scanner>) -> BeaconMap {
+    scanners.iter_mut().for_each(|s| s.prepare_rotations());
+    let mut unsolved = Vec::from_iter(scanners.iter_mut());
     let mut solved = vec![unsolved.remove(0)];
     let mut combined = BeaconMap { beacons: HashSet::new() };
-    combined.add(&solved[0]);
+    combined.add(solved[0]);
     while !unsolved.is_empty() {
         let current = solved.remove(0);
-        let len = unsolved.len();
         unsolved = unsolved.into_iter().fold(
             vec![],
             |mut unsolved, mut u| {
-                if current.overlaps(&mut u) {
-                    combined.add(&u);
+                if current.overlaps(u) {
+                    combined.add(u);
                     solved.push(u);
                 } else {
                     unsolved.push(u);
@@ -207,14 +200,24 @@ fn solve(mut unsolved: Vec<Scanner>) -> BeaconMap {
     combined
 }
 
-fn part1(scanners: Vec<Scanner>) -> usize {
-    let map = solve(scanners);
+fn part1(mut scanners: Vec<Scanner>) -> usize {
+    let map = solve(&mut scanners);
     map.beacons.len()
 }
 
 
-fn part2(scanners: Vec<Scanner>) -> u32 {
-    0
+fn part2(mut scanners: Vec<Scanner>) -> i32 {
+    fn manhattan_distance(a: &Vector3D, b: &Vector3D) -> i32 {
+        (a[0] - b[0]).abs() + (a[1] - b[1]).abs() + (a[2] - b[2]).abs()
+    }
+
+    solve(&mut scanners);
+    scanners.into_iter()
+        .map(|s| s.offset)
+        .combinations(2)
+        .map(|v| manhattan_distance(&v[0], &v[1]))
+        .max()
+        .unwrap()
 }
 
 #[cfg(test)]
