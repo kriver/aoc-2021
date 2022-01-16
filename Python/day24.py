@@ -80,8 +80,6 @@ def solve(data, inp, start):
 def run(ranger_supplier):
     data = load('day24.txt')
 
-    # 11499629198471 if keeping minimum per iteration
-    # 91499629198479 but also this
     ones = [int(c) for c in '11111111111111']
     inp = list(ones)
     sol, minimum = solve(data, inp, 0)
@@ -90,7 +88,7 @@ def run(ranger_supplier):
         for d in ranger_supplier(sol[i]):
             inp = sol[0:i + 1] + ones[i + 1:]
             inp[i] = d
-            inp, maybe_min = solve(data, inp, i + 1)
+            _inp, maybe_min = solve(data, inp, i + 1)
             if maybe_min <= minimum:
                 sol[i] = d
                 minimum = maybe_min
