@@ -1,5 +1,7 @@
 #![feature(map_first_last)]
 #![feature(array_zip)]
+#![feature(int_abs_diff)]
+#![feature(destructuring_assignment)]
 
 mod util;
 
@@ -25,3 +27,4 @@ mod day19;
 mod day20;
 mod day21;
 mod day22;
+mod day23;

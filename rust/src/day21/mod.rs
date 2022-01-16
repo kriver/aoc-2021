@@ -64,8 +64,6 @@ fn part2(p1: u32, p2: u32) -> u64 {
 
 #[cfg(test)]
 mod tests {
-    use itertools::{iproduct, Itertools};
-
     use crate::day21::{part1, part2};
 
     const PLAYER_1: u32 = 10;
